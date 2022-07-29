@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/google/uuid"
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/prstephens/go-webapi/config"
 	"github.com/prstephens/go-webapi/logger"
+	"github.com/prstephens/go-webapi/middleware"
 	"go.uber.org/zap"
 )
 
@@ -36,7 +36,7 @@ func Boot() *Application {
 	return &Application{
 		Server: &http.Server{
 			Addr:         ":8080",
-			Handler:      corsHandler(requestIDMiddleware(router)), // use more handlers here to chain common things
+			Handler:      corsHandler(middleware.RequestIDMiddleware(router)), // use more handlers here to chain common things
 			IdleTimeout:  120 * time.Second,
 			ReadTimeout:  1 * time.Second,
 			WriteTimeout: 1 * time.Second,
@@ -45,31 +45,6 @@ func Boot() *Application {
 		Logger: logger,
 		Config: appConfig,
 	}
-}
-
-// ContextKey is used for context.Context value. The value requires a key that is not primitive type.
-type ContextKey string
-
-// ContextKeyRequestID is the ContextKey for RequestID
-const ContextKeyRequestID ContextKey = "requestID"
-
-func requestIDMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		ctx := r.Context()
-
-		id := uuid.New()
-
-		ctx = context.WithValue(ctx, ContextKeyRequestID, id.String())
-
-		r = r.WithContext(ctx)
-
-		fmt.Printf("Incomming request %s %s %s %s", r.Method, r.RequestURI, r.RemoteAddr, id.String())
-
-		next.ServeHTTP(w, r)
-
-		fmt.Printf("Finished handling http req. %s", id.String())
-	})
 }
 
 // Run will run the Application server
