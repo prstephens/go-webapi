@@ -1,6 +1,6 @@
 package config
 
-import "os"
+import "github.com/prstephens/go-webapi/helpers"
 
 // AppConfig is the Application configuration struct
 type AppConfig struct {
@@ -26,23 +26,14 @@ type Config struct {
 func NewApplicationConfig() *Config {
 	return &Config{
 		App: AppConfig{
-			Name:        env("APP_NAME", "Go Web API"),
-			Version:     env("APP_VERSION", "v1.0"),
-			Environment: env("ENV", "dev"),
-			LogFile:     env("LOG_FILE", "log.txt"),
+			Name:        helpers.Env("APP_NAME", "Go Web API"),
+			Version:     helpers.Env("APP_VERSION", "v1.0"),
+			Environment: helpers.Env("ENV", "dev"),
+			LogFile:     helpers.Env("LOG_FILE", "log.txt"),
 		},
 		HTTP: HTTPConfig{
-			Content: env("HTTP_CONTENT_TYPE", "application/json"),
-			Problem: env("HTTP_PROBLEM", "application/problem+json"),
+			Content: helpers.Env("HTTP_CONTENT_TYPE", "application/json"),
+			Problem: helpers.Env("HTTP_PROBLEM", "application/problem+json"),
 		},
 	}
-}
-
-// env is a simple helper function to read an environment variable or return a default value
-func env(key string, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-
-	return defaultValue
 }
