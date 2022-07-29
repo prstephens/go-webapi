@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: go_docker_api
+    container_name: go_docker_webapi
     ports:
       - "8080:8080"
     volumes: 
